@@ -1,4 +1,4 @@
-using Domain.Entidades;
+using Domain.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
 
@@ -21,13 +21,13 @@ namespace MSTest
             CobrancaRequest cobranca = PreencherCobranca();
             string txId = "fc9a4366ff3d4964b5dbc6c91a8722t8";
 
-            string imgBase64 = _baseIntegracao.PagarPorPix(cobranca, txId);
+            string imgBase64 = _baseIntegracao.PagarPorPix(cobranca, txId, PreencherCredenciais());
         }
 
         [TestMethod]
         public void Authorize()
         {
-            _baseIntegracao.Authorize();
+            _baseIntegracao.Authorize(PreencherCredenciais());
         }
 
         [TestMethod]
@@ -36,14 +36,16 @@ namespace MSTest
             CobrancaRequest cobranca = PreencherCobranca();
             string txId = "fc9a4366ff3d4964b5dbc6c91a8722t8";
             string token = "eyJhbGciOiJIUzI1NiIsI9.eyJ0eXBlIjoiYWNjZiJDbGllbnRfSWRfOThkMWmNiMWQ0NjM5YWFkOCIsImFjb3VudF9jb2RliNWEyM2I2ZTQ0ZWVkYzU1OTZjY2JhYzFhNjVlYmM3MjgiLCJzY29wZXMiOlsiY29iLnJlYWQiLCJjb2Iud3JpdGUiLCJnbi5iYWxhbmNlLnJlYWQiLCJnbi5waXguZXZwLnJlYWQiLCJnbi5waXguZXZwLndyaXRlIiwiZ24uc2V0dGluZ3MucmVhZCIsImduLnNldHRpbmdzLndyaXRlIiwicGF5bG9hZGxvY2F0aW9uLnJlYWQiLCJwYXlsb2FkbG9jYXRpb24ud3JpdGUiLCJwaXgucmVhZCIsInBpeC53cml0ZSIsIndlYmhvb2sucmVhZCIsIndlYmhvb2sud3JpdGUiXSwiZXhwaXJlc0luIjozNjAwLCJjb25maWd1cmF0aW9uIjp7Ing1dCNTMjU2IjoibnhYYUxXd0hGSGZpdXp2Mk1rck51b2I4T1psSjd4SnNzeitON1gvMGhKRT0ifSwiaWF0IjoxNjIwNzU4NzI0LCJleHAiOjE2MjA3NjIzMjR9.Vk-sW3xPds88vhlW-tItEeOgsQxPRNFXciA6KArOYcI";
-            _baseIntegracao.GerarCobrnca(token, cobranca, txId);
+            Credenciais credenciais = PreencherCredenciais();
+            _baseIntegracao.GerarCobrnca(token, cobranca, txId, credenciais.BaseUrl, credenciais.PathCertificado);
         }
 
         [TestMethod]
         public void ObterQrCode()
         {
             string token = "eyJhbGciOiJIUzI1NiIsI9.eyJ0eXBlIjoiYWNjZiJDbGllbnRfSWRfOThkMWmNiMWQ0NjM5YWFkOCIsImFjb3VudF9jb2RliNWEyM2I2ZTQ0ZWVkYzU1OTZjY2JhYzFhNjVlYmM3MjgiLCJzY29wZXMiOlsiY29iLnJlYWQiLCJjb2Iud3JpdGUiLCJnbi5iYWxhbmNlLnJlYWQiLCJnbi5waXguZXZwLnJlYWQiLCJnbi5waXguZXZwLndyaXRlIiwiZ24uc2V0dGluZ3MucmVhZCIsImduLnNldHRpbmdzLndyaXRlIiwicGF5bG9hZGxvY2F0aW9uLnJlYWQiLCJwYXlsb2FkbG9jYXRpb24ud3JpdGUiLCJwaXgucmVhZCIsInBpeC53cml0ZSIsIndlYmhvb2sucmVhZCIsIndlYmhvb2sud3JpdGUiXSwiZXhwaXJlc0luIjozNjAwLCJjb25maWd1cmF0aW9uIjp7Ing1dCNTMjU2IjoibnhYYUxXd0hGSGZpdXp2Mk1rck51b2I4T1psSjd4SnNzeitON1gvMGhKRT0ifSwiaWF0IjoxNjIwNzU4NzI0LCJleHAiOjE2MjA3NjIzMjR9.Vk-sW3xPds88vhlW-tItEeOgsQxPRNFXciA6KArOYcI";
-            _baseIntegracao.ObterQrCode(token, 1);
+            Credenciais credenciais = PreencherCredenciais();
+            _baseIntegracao.ObterQrCode(token, 1, credenciais.BaseUrl, credenciais.PathCertificado); ;
         }
 
         private CobrancaRequest PreencherCobranca()
@@ -66,6 +68,20 @@ namespace MSTest
             };
 
             return cobranca;
+        }
+
+        private Credenciais PreencherCredenciais()
+        {
+            Credenciais credenciais = new Credenciais();
+
+            credenciais.CredenciaisID = 0;//id de localização das credenciais em nosso banco de dados
+            credenciais.BaseUrl = "base url da api gerencianet";
+            credenciais.chave = "chave pix de cada cliente";
+            credenciais.ClientId = "Client_Id fornecido pela api gerencianet";
+            credenciais.Secret = "Client_secret fornecido pela api gerencianet";
+            credenciais.PathCertificado = "caminho do certificado digital fornecido pela gerencianet";           
+            
+            return credenciais;
         }
     }
 }

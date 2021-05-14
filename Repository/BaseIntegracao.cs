@@ -1,5 +1,5 @@
 ﻿using Domain.Contracts;
-using Domain.Entidades;
+using Domain.Entities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RestSharp;
@@ -12,26 +12,26 @@ namespace Repository
     public class BaseIntegracao : IBaseIntegracao
     {
         //é altamente recomendável que estas informações estejam em uma tabela de controle e não fixas no código
-        private readonly string _baseUrl = "https://api-pix.gerencianet.com.br";
-        private readonly string _clientId = "Client_Id_fornecido pela gerencianet";
-        private readonly string _secret = "Client_Secret_Fornecido pela gerencianet";
-        private readonly string _pathCertificado = "caminho do certificado fornecido pela gerencia net";
+        //private readonly string _baseUrl = "https://api-pix.gerencianet.com.br";
+        //private readonly string _clientId = "Client_Id_fornecido pela gerencianet";
+        //private readonly string _secret = "Client_Secret_Fornecido pela gerencianet";
+        //private readonly string _pathCertificado = "caminho do certificado fornecido pela gerencia net";
 
 
-        public string PagarPorPix(CobrancaRequest cobranca, string txId)
+        public string PagarPorPix(CobrancaRequest cobranca, string txId, Credenciais credenciais)
         {
-            string token = JObject.Parse(Authorize())["access_token"].ToString();
-            int location = GerarCobrnca(token, cobranca, txId);
-            return ObterQrCode(token, location);
+            string token = JObject.Parse(Authorize(credenciais))["access_token"].ToString();
+            int location = GerarCobrnca(token, cobranca, txId, credenciais.BaseUrl, credenciais.PathCertificado);
+            return ObterQrCode(token, location, credenciais.BaseUrl, credenciais.PathCertificado);
         }
 
-        public string Authorize()
+        public string Authorize(Credenciais credenciais)
         {
-            var authorization = Base64Encode($@"{_clientId}:{_secret}");
-            var client = new RestClient(@$"{_baseUrl}/oauth/token");
+            var authorization = Base64Encode($@"{credenciais.ClientId}:{credenciais.Secret}");
+            var client = new RestClient(@$"{credenciais.BaseUrl}/oauth/token");
             var request = new RestRequest(Method.POST);
 
-            ObterCertificado(client);
+            ObterCertificado(client, credenciais.PathCertificado);
 
             request.AddHeader("Authorization", "Basic " + authorization);
             request.AddHeader("Content-Type", "application/json");
@@ -41,11 +41,11 @@ namespace Repository
             return restResponse.Content;
         }
 
-        public int GerarCobrnca(string token, CobrancaRequest cobranca, string txId)
+        public int GerarCobrnca(string token, CobrancaRequest cobranca, string txId, string baseUrl, string pathCertificado)
         {
-            var client = new RestClient(@$"{_baseUrl}/v2/cob/{txId}");
+            var client = new RestClient(@$"{baseUrl}/v2/cob/{txId}");
             client.Timeout = -1;
-            ObterCertificado(client);
+            ObterCertificado(client, pathCertificado);
 
             var request = new RestRequest(Method.PUT);
             request.AddHeader("authorization", @$"bearer {token}");
@@ -63,11 +63,11 @@ namespace Repository
             return 0;
         }
 
-        public string ObterQrCode(string token, int location)
+        public string ObterQrCode(string token, int location, string baseUrl, string pathCertificado)
         {
-            var client = new RestClient(@$"{_baseUrl}/v2/loc/{location}/qrcode");
+            var client = new RestClient(@$"{baseUrl}/v2/loc/{location}/qrcode");
             client.Timeout = -1;
-            ObterCertificado(client);
+            ObterCertificado(client, pathCertificado);
             var request = new RestRequest(Method.GET);
             request.AddHeader("authorization", @$"bearer {token}");
             IRestResponse response = client.Execute(request);
@@ -83,9 +83,9 @@ namespace Repository
             return Convert.ToBase64String(plainTextBytes);
         }
 
-        private void ObterCertificado(RestClient client)
+        private void ObterCertificado(RestClient client, string pathCertificado)
         {
-            X509Certificate2 uidCert = new X509Certificate2(_pathCertificado, "");
+            X509Certificate2 uidCert = new X509Certificate2(pathCertificado, "");
             client.ClientCertificates = new X509CertificateCollection() { uidCert };
         }
     }

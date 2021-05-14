@@ -1,20 +1,25 @@
 ﻿using Domain.Contracts;
-using RestSharp;
+using Domain.Entities;
 using System;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 namespace Repository
 {
     public class BaseRepository : IBaseRepository
     {
-        public void GravarPagamento()
+        //método usado para gravar o pagamento gerado em uma base de dados
+        public bool GravarPagamento(CobrancaResponse cobranca)
         {
             throw new NotImplementedException();
         }
 
-        public void AtualizarStatusPagamento()
+        //método utilizado para atualizar o pagamento que será recebido via webhook
+        public bool AtualizarStatusPagamento()
+        {
+            throw new NotImplementedException();
+        }
+
+        //método utilizado para obter as credenciais de integração com a gerencianet de cada cliente
+        public Credenciais ObterCredenciaisGerenciaNet(int credencialId)
         {
             throw new NotImplementedException();
         }

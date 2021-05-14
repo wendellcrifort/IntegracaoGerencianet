@@ -1,4 +1,4 @@
-﻿namespace Domain.Entidades
+﻿namespace Domain.Entities
 {
     public class CobrancaResponse : CobrancaRequest
     {

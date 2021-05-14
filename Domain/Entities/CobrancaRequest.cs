@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Domain.Entidades
+namespace Domain.Entities
 {
     public class CobrancaRequest
     {
