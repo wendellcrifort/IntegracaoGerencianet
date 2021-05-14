@@ -11,13 +11,6 @@ namespace Repository
 {
     public class BaseIntegracao : IBaseIntegracao
     {
-        //é altamente recomendável que estas informações estejam em uma tabela de controle e não fixas no código
-        //private readonly string _baseUrl = "https://api-pix.gerencianet.com.br";
-        //private readonly string _clientId = "Client_Id_fornecido pela gerencianet";
-        //private readonly string _secret = "Client_Secret_Fornecido pela gerencianet";
-        //private readonly string _pathCertificado = "caminho do certificado fornecido pela gerencia net";
-
-
         public string PagarPorPix(CobrancaRequest cobranca, string txId, Credenciais credenciais)
         {
             string token = JObject.Parse(Authorize(credenciais))["access_token"].ToString();
